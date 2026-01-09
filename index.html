@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusMate - Jadwal Kuliah</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="text-gray-800 bg-gray-100">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50"></div>
+
+    <div id="auth-view" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden fade-in">
+            <div class="bg-indigo-600 p-8 text-center text-white">
+                <i class="fas fa-university text-5xl mb-4"></i>
+                <h1 class="text-3xl font-bold">CampusMate</h1>
+                <p class="opacity-90">Login Aman & Terproteksi</p>
+            </div>
+            
+            <div id="login-form" class="p-8">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Masuk</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Username</label>
+                        <input type="text" id="login-user" class="input-field" required placeholder="Username">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+                        <input type="password" id="login-pass" class="input-field" required placeholder="********">
+                    </div>
+                    <button type="submit" class="btn-primary">Masuk</button>
+                </form>
+                <p class="mt-4 text-center text-sm">Belum punya akun? <a href="#" onclick="toggleAuth('register')" class="text-indigo-600 font-semibold hover:underline">Daftar</a></p>
+            </div>
+
+            <div id="register-form" class="p-8 hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Buat Akun</h2>
+                <form onsubmit="handleRegister(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Username Baru</label>
+                        <input type="text" id="reg-user" class="input-field" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+                        <input type="password" id="reg-pass" class="input-field" required>
+                    </div>
+                    <button type="submit" class="btn-success">Daftar Sekarang</button>
+                </form>
+                <p class="mt-4 text-center text-sm">Sudah punya akun? <a href="#" onclick="toggleAuth('login')" class="text-indigo-600 font-semibold hover:underline">Masuk</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
+        <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center z-10 sticky top-0">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-graduation-cap text-indigo-600 text-2xl"></i>
+                <span class="font-bold text-xl tracking-tight">CampusMate</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="user-display" class="font-medium text-gray-600 hidden sm:block"></span>
+                <button onclick="logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Keluar"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+
+        <div class="flex-1 container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg fade-in">
+                    <h3 class="text-lg font-semibold opacity-90"><i class="far fa-clock mr-2"></i>Waktu Sekarang</h3>
+                    <p id="clock-display" class="text-4xl font-bold my-2">00:00</p>
+                    <p id="date-display" class="text-sm opacity-80">...</p>
+                    <div class="mt-4 pt-4 border-t border-white/20">
+                        <button onclick="requestNotification()" id="notif-btn" class="text-xs bg-white text-indigo-600 px-3 py-1 rounded-full font-bold hover:bg-gray-100 transition shadow">
+                            Aktifkan Notifikasi
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 fade-in">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Tambah Mata Kuliah</h3>
+                    <form onsubmit="addClass(event)">
+                        <div class="space-y-3">
+                            <input type="text" id="class-name" placeholder="Nama Mata Kuliah" class="input-field" required>
+                            <input type="text" id="class-room" placeholder="Ruang (Cth: Gedung A 101)" class="input-field" required>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="class-day" class="input-field">
+                                    <option value="Senin">Senin</option>
+                                    <option value="Selasa">Selasa</option>
+                                    <option value="Rabu">Rabu</option>
+                                    <option value="Kamis">Kamis</option>
+                                    <option value="Jumat">Jumat</option>
+                                    <option value="Sabtu">Sabtu</option>
+                                    <option value="Minggu">Minggu</option>
+                                </select>
+                                <input type="time" id="class-time" class="input-field" required>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary mt-2 shadow-lg shadow-indigo-200">
+                                <i class="fas fa-plus mr-2"></i>Simpan Jadwal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[500px] fade-in flex flex-col">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-800">Jadwal Kuliah Saya</h3>
+                    </div>
+                    
+                    <div id="schedule-list" class="p-6 space-y-4 flex-1 overflow-y-auto max-h-[600px]">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
