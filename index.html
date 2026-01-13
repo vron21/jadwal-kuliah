@@ -97,6 +97,7 @@
 
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 fade-in">
                     <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Tambah Mata Kuliah</h3>
+                    
                     <form onsubmit="addClass(event)">
                         <div class="space-y-3">
                             <input type="text" id="class-name" placeholder="Nama Mata Kuliah" class="input-field" required>
@@ -115,7 +116,32 @@
                                     <option value="Sabtu">Sabtu</option>
                                     <option value="Minggu">Minggu</option>
                                 </select>
-                                <input type="time" id="class-time" class="input-field" required>
+                                <select id="class-semester" class="input-field">
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                    <option value="5">Semester 5</option>
+                                    <option value="6">Semester 6</option>
+                                    <option value="7">Semester 7</option>
+                                    <option value="8">Semester 8</option>
+                                </select>
+                            </div>
+
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-1">
+                                    <i class="far fa-clock mr-1"></i>Fitur Waktu Kuliah
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <span class="text-[10px] text-indigo-500 font-bold block mb-1">Masuk</span>
+                                        <input type="time" id="class-start-time" class="input-field text-sm" required>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] text-red-500 font-bold block mb-1">Selesai</span>
+                                        <input type="time" id="class-end-time" class="input-field text-sm" required>
+                                    </div>
+                                </div>
                             </div>
 
                             <textarea id="class-notes" placeholder="Catatan (Tugas/PR/Info)" class="input-field h-20 resize-none py-2"></textarea>
