@@ -69,7 +69,6 @@ function showDashboard() {
     
     document.getElementById('user-display').innerText = `Halo, ${currentUser}`;
     
-    // Update Banner Nama
     const bannerHeading = document.getElementById('welcome-heading');
     if (bannerHeading) bannerHeading.innerText = `Halo, ${currentUser}!`;
 
@@ -84,15 +83,24 @@ function showDashboard() {
 function addClass(e) {
     e.preventDefault();
     
-    // MENGAMBIL DATA INPUT (TERMASUK DOSEN & CATATAN)
+    const startTime = document.getElementById('class-start-time').value;
+    const endTime = document.getElementById('class-end-time').value;
+
+    // Validasi: Jam Selesai tidak boleh lebih kecil dari Jam Masuk
+    if (endTime <= startTime) {
+        return showToast('Jam Selesai harus lebih akhir dari Jam Masuk!', 'error');
+    }
+
     const newClass = {
         id: Date.now(),
         name: document.getElementById('class-name').value,
-        lecturer: document.getElementById('class-lecturer').value, // Ambil Nama Dosen
+        lecturer: document.getElementById('class-lecturer').value,
         room: document.getElementById('class-room').value,
         day: document.getElementById('class-day').value,
-        time: document.getElementById('class-time').value,
-        notes: document.getElementById('class-notes').value, // Ambil Catatan
+        semester: document.getElementById('class-semester').value, // Simpan Semester
+        startTime: startTime, // Simpan Waktu Masuk
+        endTime: endTime,     // Simpan Waktu Selesai
+        notes: document.getElementById('class-notes').value,
         user: currentUser 
     };
 
@@ -123,9 +131,11 @@ function renderSchedule() {
     const mySchedules = schedules.filter(s => s.user === currentUser);
 
     const daysOrder = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 7 };
+    
+    // Urutkan berdasarkan Hari, lalu berdasarkan Jam Masuk
     mySchedules.sort((a, b) => {
         if (daysOrder[a.day] !== daysOrder[b.day]) return daysOrder[a.day] - daysOrder[b.day];
-        return a.time.localeCompare(b.time);
+        return a.startTime.localeCompare(b.startTime);
     });
 
     if (mySchedules.length === 0) {
@@ -138,14 +148,12 @@ function renderSchedule() {
     }
 
     mySchedules.forEach(item => {
-        // TAMPILAN KHUSUS JIKA ADA CATATAN
         const notesHtml = item.notes 
             ? `<div class="mt-3 text-xs bg-yellow-50 text-yellow-800 p-2 rounded border border-yellow-200">
                  <i class="fas fa-sticky-note mr-1"></i> <b>Catatan:</b> ${item.notes}
                </div>` 
             : '';
 
-        // TAMPILAN KHUSUS JIKA ADA NAMA DOSEN
         const lecturerHtml = item.lecturer 
             ? `<div class="text-sm text-gray-600 mb-1"><i class="fas fa-chalkboard-teacher mr-1 text-indigo-400"></i> ${item.lecturer}</div>`
             : '';
@@ -153,18 +161,26 @@ function renderSchedule() {
         const card = document.createElement('div');
         card.className = "bg-gray-50 hover:bg-white border border-gray-200 p-4 rounded-xl flex justify-between items-start transition shadow-sm hover:shadow-md mb-3";
         
+        // TAMPILAN KARTU (Semester & Range Waktu)
         card.innerHTML = `
             <div class="flex items-start gap-4 w-full">
                 <div class="bg-indigo-100 text-indigo-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-lg mt-1">
                     ${item.day.substring(0, 3)}
                 </div>
                 <div class="w-full">
-                    <h4 class="font-bold text-gray-800 text-lg leading-tight">${item.name}</h4>
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-gray-800 text-lg leading-tight">${item.name}</h4>
+                        <span class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
+                            Sem. ${item.semester}
+                        </span>
+                    </div>
                     
                     ${lecturerHtml}
 
-                    <div class="text-sm text-gray-500 flex flex-wrap gap-3 mt-1">
-                        <span><i class="far fa-clock mr-1"></i>${item.time} WIB</span>
+                    <div class="text-sm text-gray-500 flex flex-wrap gap-3 mt-1 items-center">
+                        <span class="bg-white border border-gray-300 px-2 py-0.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                            <i class="far fa-clock mr-1 text-indigo-500"></i>${item.startTime} - ${item.endTime}
+                        </span>
                         <span><i class="fas fa-map-marker-alt mr-1"></i>${item.room}</span>
                     </div>
 
@@ -206,8 +222,9 @@ function checkScheduleNotification(now, currentDay) {
     const mySchedules = schedules.filter(s => s.user === currentUser);
     
     mySchedules.forEach(item => {
-        if (item.day === currentDay && item.time === currentTime) {
-            sendNotification(`🔔 Waktunya Kuliah!`, `${item.name} (${item.room})`);
+        // Notifikasi berbunyi saat JAM MASUK (startTime)
+        if (item.day === currentDay && item.startTime === currentTime) {
+            sendNotification(`🔔 Masuk Kuliah!`, `${item.name} dimulai pukul ${item.startTime}`);
             lastNotifiedTime = currentTime;
         }
     });
